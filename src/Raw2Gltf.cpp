@@ -492,7 +492,6 @@ ModelData *Raw2Gltf(
             std::vector<const pixel *> pixelPointers(texes.size());
             for (int xx = 0; xx < width; xx ++) {
                 for (int yy = 0; yy < height; yy ++) {
-                    pixels.clear();
                     for (int jj = 0; jj < texes.size(); jj ++) {
                         const TexInfo &tex = texes[jj];
                         // each texture's structure will depend on its channel count
@@ -502,11 +501,14 @@ ModelData *Raw2Gltf(
                             for (; kk < tex.channels; kk ++) {
                                 pixels[jj][kk] = tex.pixels[ii++] / 255.0f;
                             }
+                            for (; kk < pixels[jj].size(); kk++) {
+                                pixels[jj][kk] = 1.0f;
+                            }
+                            pixelPointers[jj] = &pixels[jj];
+                        } else {
+                            pixelPointers[jj] = nullptr;
                         }
-                        for (; kk < pixels[jj].size(); kk ++) {
-                            pixels[jj][kk] = 1.0f;
-                        }
-                        pixelPointers[jj] = &pixels[jj];
+
                     }
                     const pixel merged = combine(pixelPointers);
                     int ii = channels * (xx + yy*width);
