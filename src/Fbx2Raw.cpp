@@ -1319,6 +1319,10 @@ static void ReadAnimations(RawModel &raw, FbxScene *pScene)
 
 static std::string GetInferredFileName(const std::string &fbxFileName, const std::string &directory, const std::vector<std::string> &directoryFileList)
 {
+    if (!Gltf::StringUtils::IsRelativePath(fbxFileName)) {
+        return fbxFileName;
+    }
+
     // Get the file name with file extension.
     const std::string fileName = Gltf::StringUtils::GetFileNameString(Gltf::StringUtils::GetCleanPathString(fbxFileName));
 

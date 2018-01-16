@@ -88,6 +88,25 @@ namespace Gltf // TODO replace
             return strncasecmp(s1.c_str(), s2.c_str(), MAX_PATH_LENGTH);
         }
 
+        inline bool IsRelativePath(const std::string &path)
+        {
+#ifdef WIN32
+            if (path.size() > 1 && path[1] == ':')
+            {
+                return false;
+            }
+
+            return true;
+#else
+            if (path.size() > 0 && path[0] == '/')
+            {
+                return false;
+            }
+
+            return true;
+#endif
+        }
+
     } // StringUtils
 
 }// namespace Gltf 
