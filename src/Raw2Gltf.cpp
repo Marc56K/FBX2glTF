@@ -16,6 +16,8 @@
 #include <stb_image.h>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include <stb_image_resize.h>
 
 #include "FBX2glTF.h"
 #include "utils/String_Utils.h"
@@ -460,18 +462,10 @@ ModelData *Raw2Gltf(
                                 rawTexIx,
                                 Gltf::StringUtils::GetFileBaseString(Gltf::StringUtils::GetFileNameString(fileLoc)));
                         } else {
-                            if (width < 0) {
-                                width = info.width;
-                                height = info.height;
-                            } else if (width != info.width || height != info.height) {
-                                fmt::printf("Warning: texture %s (%d, %d) can't be merged with previous texture(s) of dimension (%d, %d)\n",
-                                    Gltf::StringUtils::GetFileBaseString(Gltf::StringUtils::GetFileNameString(fileLoc)),
-                                    info.width, info.height, width, height);
-                                // this is bad enough that we abort the whole merge
-                                return nullptr;
-                            }
                             mergedName += "_" + rawTex.fileName;
                             mergedFilename += "_" + fileLocBase;
+                            width = std::max(width, info.width);
+                            height = std::max(height, info.height);
                         }
                     }
                 }
@@ -482,6 +476,25 @@ ModelData *Raw2Gltf(
                 // no textures to merge; bail
                 return nullptr;
             }
+
+            // resize images to same dimensions
+            for (int i = 0; i < texes.size(); i++) {
+                TexInfo &tex = texes[i];
+                if (tex.pixels != nullptr && (tex.width != width || tex.height != height)) {
+                    uint8_t* scaledPixels = (uint8_t*)stbi__malloc(width * height * tex.channels * sizeof(uint8_t));
+
+                    stbir_resize_uint8(
+                        tex.pixels, tex.width, tex.height, 0,
+                        scaledPixels, width, height, 0, tex.channels);
+
+                    stbi_image_free(tex.pixels);
+
+                    tex.pixels = scaledPixels;
+                    tex.width = width;
+                    tex.height = height;
+                }
+            }
+
             // TODO: which channel combinations make sense in input files?
 
             // write 3 or 4 channels depending on whether or not we need transparency
@@ -515,6 +528,13 @@ ModelData *Raw2Gltf(
                     for (int jj = 0; jj < channels; jj ++) {
                         mergedPixels[ii + jj] = static_cast<uint8_t>(fmax(0, fmin(255.0f, merged[jj] * 255.0f)));
                     }
+                }
+            }
+
+            for (int i = 0; i < texes.size(); i++) {
+                TexInfo &tex = texes[i];
+                if (tex.pixels != nullptr) {
+                    stbi_image_free(tex.pixels);
                 }
             }
 
