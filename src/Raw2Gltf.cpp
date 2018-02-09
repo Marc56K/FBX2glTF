@@ -782,7 +782,8 @@ ModelData *Raw2Gltf(
                             Vec3f fromSpecular = specular - dielectric * (1.0f - pixelMet) * (1.0f / fmax(pixelMet, epsilon));
                             Vec3f baseColor = Vec3f::Lerp(fromDiffuse, fromSpecular, pixelMet * pixelMet);
 
-                            return { baseColor[0], baseColor[1], baseColor[2], diffuse[3] };
+                            return { diffuse[0], diffuse[1], diffuse[2], diffuse[3] };
+                            //return { baseColor[0], baseColor[1], baseColor[2], diffuse[3] };
                         }, diffuseTex.occlusion == RAW_TEXTURE_OCCLUSION_TRANSPARENT);
                     }
                     emissiveFactor    = props->emissiveFactor;
