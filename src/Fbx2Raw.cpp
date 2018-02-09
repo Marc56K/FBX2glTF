@@ -829,13 +829,13 @@ static void ReadMesh(RawModel &raw, FbxScene *pScene, FbxNode *pNode, const std:
 
                 FbxTraditionalMaterialInfo *fbxMatInfo = static_cast<FbxTraditionalMaterialInfo *>(fbxMaterial.get());
                 RawShadingModel shadingModel;
-                if (fbxMaterial->shadingModel == "Lambert") {
+                if (fbxMaterial->shadingModel == "Lambert" || fbxMaterial->shadingModel == "lambert") {
                     shadingModel = RAW_SHADING_MODEL_LAMBERT;
-                } else if (fbxMaterial->shadingModel == "Blinn") {
+                } else if (fbxMaterial->shadingModel == "Blinn" || fbxMaterial->shadingModel == "blinn") {
                     shadingModel = RAW_SHADING_MODEL_BLINN;
-                } else if (fbxMaterial->shadingModel == "Phong") {
+                } else if (fbxMaterial->shadingModel == "Phong" || fbxMaterial->shadingModel == "phong") {
                     shadingModel = RAW_SHADING_MODEL_PHONG;
-                } else if (fbxMaterial->shadingModel == "Constant") {
+                } else if (fbxMaterial->shadingModel == "Constant" || fbxMaterial->shadingModel == "constant") {
                     shadingModel = RAW_SHADING_MODEL_PHONG;
                 } else {
                     shadingModel = RAW_SHADING_MODEL_UNKNOWN;
